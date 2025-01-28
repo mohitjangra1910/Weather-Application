@@ -1,0 +1,42 @@
+pipeline {     
+    agent any      
+    stages {         
+        stage('Checkout Code') {             
+            steps {                 
+                git credentialsId: 'db4f5bbb-303c-48d9-8229-3897e9fd5ff9', url: 'https://github.com/mohitjangra1910/Weather-Application.git'             
+            }         
+        }         
+        stage('Install Dependencies') {             
+            steps {                 
+                sh 'npm install'             
+            }         
+        }         
+        stage('Run Tests') {             
+            steps {                 
+                sh 'npm test'             
+            }         
+        }         
+        stage('Build') {             
+            steps {                 
+                sh 'npm run build'             
+            }         
+        }         
+        stage('Deploy') {             
+            steps {                 
+                sh '''                 
+                pm2 stop app || true                 
+                pm2 start app.js --name "node-app"                 
+                '''             
+            }         
+        }     
+    }      
+    post {         
+        success {             
+            echo 'Build, Test, and Deployment Successful!'         
+        }         
+        failure {             
+            echo 'Build Failed. Check logs!'         
+        }     
+    } 
+}
+
