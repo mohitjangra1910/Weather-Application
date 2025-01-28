@@ -3,17 +3,11 @@ pipeline {
     stages {         
         stage('Install Dependencies') {             
             steps {                 
-                // Install Node.js (if not already installed)                 
+                // Install Node.js and npm
                 sh '''                 
-                # Check if Node.js is installed, if not install it                 
-                if ! command -v node &> /dev/null                 
-                then                     
-                    echo "Node.js not found. Installing Node.js..."                     
-                    curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -                     
-                    sudo apt-get install -y nodejs                 
-                else                     
-                    echo "Node.js is already installed: $(node -v)"                 
-                fi                 
+                echo "Installing Node.js and npm..."                 
+                curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -                 
+                sudo apt-get install -y nodejs                 
                 '''                 
                 // Install npm dependencies                 
                 sh 'npm install'             
@@ -37,14 +31,20 @@ pipeline {
                 '''             
             }         
         }     
+        stage('Run Application') {
+            steps {
+                sh '''
+                echo "Starting the application..."
+                pm2 start app.js --name "node-app" || true
+                '''
+            }
+        }     
     }      
     post {         
         success {             
-            echo 'Build, Test, and Deployment Successful!'         
+            echo 'Build, Test, Deployment, and Application Run Successful!'         
         }         
         failure {             
             echo 'Build Failed. Check logs!'         
         }     
-    } 
 }
-
